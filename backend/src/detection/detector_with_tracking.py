@@ -9,7 +9,7 @@ from src.alerts.alert_manager import AlertManager
 class DroneDetectorTracker:
     """Combined detection + tracking + behavior analysis pipeline"""
     
-    def __init__(self, model_path="best.pt", conf_threshold=0.5, restricted_zones=None):
+    def __init__(self, model_path="yolov8s.pt", conf_threshold=0.5, restricted_zones=None):
         self.detector = DroneDetector(model_path, conf_threshold)
         self.tracker = SimpleTracker()
         self.behavior_classifier = BehaviorClassifier(fps=30, restricted_zones=restricted_zones)

@@ -18,6 +18,9 @@ interface DashboardLayoutProps {
 
 const sidebarItems = [
   { id: "detector", label: "UAV Detector", icon: Shield },
+  { id: "video", label: "Live Surveillance", icon: LayoutDashboard },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 const DashboardLayout = ({ children, activeSection, onSectionChange }: DashboardLayoutProps) => {

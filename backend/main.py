@@ -49,8 +49,8 @@ async def lifespan(app: FastAPI):
     # Startup
     print("Initializing AI Models...")
     try:
-        # Load the requested best.pt model via DroneDetectorTracker
-        model_path = "best.pt"
+        # Load the requested yolov8s.pt model via DroneDetectorTracker
+        model_path = "yolov8s.pt"
         print(f"Loading model: {model_path}")
         # Initialize DroneDetectorTracker
         # Note: restricted_zones can be passed if needed later
@@ -289,7 +289,7 @@ async def analyze_video(file: UploadFile = File(...)):
     # Actually, simpler is just to create a new instance. Loading model is fast if cached by YOLO.
     
     # Create a dedicated processor for this video
-    video_processor = DroneDetectorTracker(model_path="best.pt")
+    video_processor = DroneDetectorTracker(model_path="yolov8s.pt")
     
     frame_count = 0
     while cap.isOpened():

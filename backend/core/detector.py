@@ -4,7 +4,7 @@ from ultralytics import YOLO
 ## from .tracker import Tracker # Will be implemented next
 
 class Detector:
-    def __init__(self, model_path='best.pt'):
+    def __init__(self, model_path='yolov8s.pt'):
         self.model = YOLO(model_path)
     
     def process_frame(self, frame):

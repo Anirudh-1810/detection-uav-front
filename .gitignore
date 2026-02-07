@@ -83,7 +83,7 @@ flask_session/
 data/
 datasets/
 *.h5
-*.pt
+
 *.pth
 *.onnx
 *.pkl
@@ -142,4 +142,12 @@ Thumbs.db
 # ===============================
 .mypy_cache/
 .pyre/
-.pytype/
+
+# ===============================
+# Backend specific
+# ===============================
+backend/uploads/
+backend/outputs/
+backend/best.pt
+backend/check_backend_components.py
+backend/test_upload.py
