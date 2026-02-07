@@ -29,7 +29,7 @@ const Index = () => {
       case "settings":
         return <DashboardSettings />;
       default:
-        return <DashboardOverview />;
+        return <Detector />;
     }
   };
 

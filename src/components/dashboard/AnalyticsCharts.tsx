@@ -1,44 +1,70 @@
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import { useEffect, useState } from "react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from "recharts";
+import { getStats, Stats } from "@/lib/api";
 
-const timelineData = [
-  { time: "00:00", detections: 12, threats: 2 },
-  { time: "04:00", detections: 8, threats: 1 },
-  { time: "08:00", detections: 24, threats: 5 },
-  { time: "12:00", detections: 45, threats: 8 },
-  { time: "16:00", detections: 38, threats: 6 },
-  { time: "20:00", detections: 28, threats: 4 },
-  { time: "24:00", detections: 15, threats: 2 },
-];
+interface AnalyticsChartsProps {
+  initialStats?: any;
+}
 
-const threatDistribution = [
-  { name: "Low", value: 45, color: "hsl(199, 89%, 48%)" },
-  { name: "Medium", value: 32, color: "hsl(38, 92%, 50%)" },
-  { name: "High", value: 18, color: "hsl(0, 72%, 51%)" },
-  { name: "Critical", value: 5, color: "hsl(0, 84%, 40%)" },
-];
+const AnalyticsCharts = ({ initialStats }: AnalyticsChartsProps) => {
+  const [stats, setStats] = useState<any>(initialStats || null);
+  const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [threatDistribution, setThreatDistribution] = useState<any[]>([]);
+  const [behaviorData, setBehaviorData] = useState<any[]>([]);
 
-const behaviorData = [
-  { pattern: "Transit", count: 156 },
-  { pattern: "Loitering", count: 42 },
-  { pattern: "Surveillance", count: 28 },
-  { pattern: "Approach", count: 18 },
-  { pattern: "Evasive", count: 8 },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getStats();
+        setStats(data);
 
-const AnalyticsCharts = () => {
+        // Transform hourly_breakdown for chart (mock data to real structure)
+        if (data.hourly_breakdown) {
+          const chartData = data.hourly_breakdown.map((val: number, idx: number) => ({
+            time: `${idx}:00`,
+            detections: val,
+            threats: Math.floor(val * 0.2) // Mock threat data based on detections
+          }));
+          setTimelineData(chartData);
+        }
+
+        // Threat Distribution
+        setThreatDistribution([
+          { name: "Low", value: data.low_alerts || 0, color: "hsl(199, 89%, 48%)" },
+          { name: "Medium", value: data.medium_alerts || 0, color: "hsl(38, 92%, 50%)" },
+          { name: "High", value: data.high_alerts || 0, color: "hsl(0, 72%, 51%)" },
+        ]);
+
+        // Behavior Pattern (Mock for now or derive if backend provides)
+        setBehaviorData([
+          { pattern: "Speeding", count: data.speed_violations || 0 },
+          { pattern: "Hovering", count: data.hover_detections || 0 },
+          { pattern: "In Zone", count: data.zone_violations || 0 },
+        ]);
+
+      } catch (error) {
+        console.error("Failed to load stats", error);
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 2000); // Poll every 2s for "real-time" feel
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Timeline chart */}
@@ -47,18 +73,18 @@ const AnalyticsCharts = () => {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={timelineData}>
-              <CartesianGrid 
-                stroke="hsl(220, 8%, 15%)" 
-                strokeDasharray="3 3" 
+              <CartesianGrid
+                stroke="hsl(220, 8%, 15%)"
+                strokeDasharray="3 3"
                 vertical={false}
               />
-              <XAxis 
-                dataKey="time" 
+              <XAxis
+                dataKey="time"
                 stroke="hsl(220, 8%, 40%)"
                 tick={{ fill: "hsl(220, 8%, 50%)", fontSize: 11 }}
                 axisLine={{ stroke: "hsl(220, 8%, 15%)" }}
               />
-              <YAxis 
+              <YAxis
                 stroke="hsl(220, 8%, 40%)"
                 tick={{ fill: "hsl(220, 8%, 50%)", fontSize: 11 }}
                 axisLine={{ stroke: "hsl(220, 8%, 15%)" }}
@@ -71,19 +97,12 @@ const AnalyticsCharts = () => {
                 }}
                 labelStyle={{ color: "hsl(220, 10%, 92%)" }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="detections" 
-                stroke="hsl(199, 89%, 48%)" 
+              <Line
+                type="monotone"
+                dataKey="detections"
+                stroke="hsl(199, 89%, 48%)"
                 strokeWidth={1.5}
                 dot={{ fill: "hsl(199, 89%, 48%)", r: 3 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="threats" 
-                stroke="hsl(0, 72%, 51%)" 
-                strokeWidth={1.5}
-                dot={{ fill: "hsl(0, 72%, 51%)", r: 3 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -91,11 +110,11 @@ const AnalyticsCharts = () => {
         <div className="flex items-center gap-6 mt-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-[2px] bg-primary" />
-            <span className="text-xs text-foreground-muted">Total Detections</span>
+            <span className="text-xs text-foreground-muted">Total Detections: {stats?.total_detections || 0}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-[2px] bg-destructive" />
-            <span className="text-xs text-foreground-muted">Threat Events</span>
+            <span className="text-xs text-foreground-muted">Total Alerts: {stats?.total_alerts || 0}</span>
           </div>
         </div>
       </div>
@@ -133,12 +152,12 @@ const AnalyticsCharts = () => {
           <div className="grid grid-cols-2 gap-2 mt-4">
             {threatDistribution.map((item) => (
               <div key={item.name} className="flex items-center gap-2">
-                <div 
-                  className="w-2 h-2 rounded-full" 
+                <div
+                  className="w-2 h-2 rounded-full"
                   style={{ background: item.color }}
                 />
                 <span className="text-xs text-foreground-muted">
-                  {item.name}: {item.value}%
+                  {item.name}: {item.value}
                 </span>
               </div>
             ))}
@@ -151,18 +170,18 @@ const AnalyticsCharts = () => {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={behaviorData} layout="vertical">
-                <CartesianGrid 
-                  stroke="hsl(220, 8%, 15%)" 
-                  strokeDasharray="3 3" 
+                <CartesianGrid
+                  stroke="hsl(220, 8%, 15%)"
+                  strokeDasharray="3 3"
                   horizontal={false}
                 />
-                <XAxis 
+                <XAxis
                   type="number"
                   stroke="hsl(220, 8%, 40%)"
                   tick={{ fill: "hsl(220, 8%, 50%)", fontSize: 11 }}
                   axisLine={{ stroke: "hsl(220, 8%, 15%)" }}
                 />
-                <YAxis 
+                <YAxis
                   type="category"
                   dataKey="pattern"
                   stroke="hsl(220, 8%, 40%)"
@@ -177,8 +196,8 @@ const AnalyticsCharts = () => {
                     borderRadius: "4px",
                   }}
                 />
-                <Bar 
-                  dataKey="count" 
+                <Bar
+                  dataKey="count"
                   fill="hsl(199, 89%, 48%)"
                   radius={[0, 2, 2, 0]}
                 />

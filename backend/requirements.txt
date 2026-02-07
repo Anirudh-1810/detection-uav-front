@@ -1,6 +1,9 @@
+ultralytics
 fastapi
 uvicorn
-ultralytics
+opencv-python
+websockets
+numpy
 python-multipart
 pillow
 google-generativeai

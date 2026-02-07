@@ -17,11 +17,7 @@ interface DashboardLayoutProps {
 }
 
 const sidebarItems = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "detector", label: "UAV Detector", icon: Shield },
-  // "Live Feed" removed
-  { id: "analytics", label: "Analytics & Reports", icon: BarChart3 },
-  { id: "settings", label: "System", icon: Settings },
 ];
 
 const DashboardLayout = ({ children, activeSection, onSectionChange }: DashboardLayoutProps) => {
@@ -56,8 +52,8 @@ const DashboardLayout = ({ children, activeSection, onSectionChange }: Dashboard
                   key={item.id}
                   onClick={() => onSectionChange(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 group ${activeSection === item.id
-                      ? "bg-primary/10 border border-primary/20 text-primary"
-                      : "text-foreground-muted hover:bg-background-elevated hover:text-foreground"
+                    ? "bg-primary/10 border border-primary/20 text-primary"
+                    : "text-foreground-muted hover:bg-background-elevated hover:text-foreground"
                     }`}
                 >
                   <item.icon className={`w-4 h-4 ${activeSection === item.id ? "text-primary" : "text-foreground-subtle group-hover:text-foreground"
