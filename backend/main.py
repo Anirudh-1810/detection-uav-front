@@ -118,14 +118,48 @@ app.mount("/videos", StaticFiles(directory="outputs"), name="videos")
 api_key = os.getenv("GEMINI_API_KEY")
 genai_model = None
 
-SYSTEM_PROMPT = """You are an RF analyst for UAV detection.
-Analyze RF signal data and assign a risk level.
+# --- MongoDB Setup ---
+import pymongo
+from pymongo.errors import ConnectionFailure
 
-Return exactly:
-- 1 line with Risk Level
-- 1 line with Score (0 safe → 1 unsafe)
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/uav_detection")
+mongo_client = None
+db = None
+analysis_collection = None
 
-Acknowledge uncertainty if present.
+try:
+    # Connect to MongoDB (Atlas or Local)
+    mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    # Trigger a server check
+    mongo_client.admin.command('ping')
+    
+    db_name = MONGO_URI.split("/")[-1].split("?")[0] or "uav_detection"
+    db = mongo_client[db_name]
+    analysis_collection = db["analysis_logs"]
+    print(f"Connected to MongoDB: {db_name}")
+except Exception as e:
+    print(f"Warning: MongoDB connection failed: {e}. Stats will not be saved.")
+    mongo_client = None
+
+SYSTEM_PROMPT = """You are an expert RF signal analyst specializing in unmanned aerial vehicle (UAV) detection and threat assessment.
+
+## Your Responsibilities:
+1. Analyze provided RF signal characteristics
+2. Assign an appropriate risk level based on evidence
+
+## Risk Level Classification:
+- **MINIMAL**: Clear consumer drone patterns, standard protocols, normal behavior
+- **LOW**: Mostly benign with minor anomalies that have innocent explanations
+- **MODERATE**: Mixed signals or unusual patterns that warrant monitoring
+- **HIGH**: Multiple concerning indicators suggesting potential threat
+- **CRITICAL**: Strong evidence of malicious intent or unauthorized operation
+
+## Important Constraints:
+- Return ONLY 2 lines of analysis and a risk score.
+- Score scale: 0 is completely safe, 1 is confirmed unsafe threat.
+- Format:
+  Analysis: [One sentence summary]
+  Risk Score: [0.0 - 1.0]
 """
 
 
@@ -143,28 +177,27 @@ else:
     print("Warning: GEMINI_API_KEY not found in environment variables.")
 
 # Load model - Update this path to where you put your model
-MODEL_PATH = "models/best.pt" 
+# MODEL_PATH = "models/best.pt" # This is now handled in lifespan
+model = None # Initialized to None, loaded in lifespan
 
-model = None
+# @app.on_event("startup") # This is now handled by the lifespan context manager
+# async def startup_event():
+#     global model
+#     if os.path.exists(f"backend/{MODEL_PATH}"):
+#          # logic if running from root
+#          model_file = f"backend/{MODEL_PATH}"
+#     elif os.path.exists(MODEL_PATH):
+#          # logic if running from backend dir
+#          model_file = MODEL_PATH
+#     else:
+#         print(f"Warning: Model not found at {MODEL_PATH}. Prediction endpoint will return errors.")
+#         return
 
-@app.on_event("startup")
-async def startup_event():
-    global model
-    if os.path.exists(f"backend/{MODEL_PATH}"):
-         # logic if running from root
-         model_file = f"backend/{MODEL_PATH}"
-    elif os.path.exists(MODEL_PATH):
-         # logic if running from backend dir
-         model_file = MODEL_PATH
-    else:
-        print(f"Warning: Model not found at {MODEL_PATH}. Prediction endpoint will return errors.")
-        return
-
-    try:
-        model = YOLO(model_file)
-        print(f"Model loaded from {model_file}")
-    except Exception as e:
-        print(f"Failed to load model: {e}")
+#     try:
+#         model = YOLO(model_file)
+#         print(f"Model loaded from {model_file}")
+#     except Exception as e:
+#         print(f"Failed to load model: {e}")
 
 @app.get("/")
 def read_root():

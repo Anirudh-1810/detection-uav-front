@@ -5,6 +5,8 @@ opencv-python
 websockets
 numpy
 python-multipart
+pymongo
+dnspython
 pillow
 google-generativeai
 python-dotenv
