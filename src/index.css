@@ -194,6 +194,28 @@
     background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
     animation: scanline 8s linear infinite;
   }
+
+  .scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      hsl(var(--background) / 0.1) 2px,
+      hsl(var(--background) / 0.1) 3px
+    );
+    background-size: 100% 4px;
+  }
+
+  .scanline-sweep {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, hsl(var(--primary) / 0.5), transparent);
+    animation: scanline 3s linear infinite;
+    opacity: 0.5;
+  }
 }
 
 @layer utilities {
@@ -211,6 +233,10 @@
   .text-narrative {
     @apply text-lg font-light leading-relaxed;
     color: hsl(var(--foreground-muted));
+  }
+
+  .data-label {
+    @apply text-xs font-medium tracking-widest uppercase text-muted-foreground;
   }
   
   /* Status indicators */
@@ -230,5 +256,18 @@
   
   .status-warning::before {
     background: hsl(var(--warning));
+  }
+
+  .status-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 }
