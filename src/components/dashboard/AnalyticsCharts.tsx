@@ -15,24 +15,15 @@ import {
 } from "recharts";
 import { getStats, Stats } from "@/lib/api";
 
-const threatDistribution = [
-  { name: "Low", value: 45, color: "hsl(199, 89%, 48%)" },
-  { name: "Medium", value: 32, color: "hsl(38, 92%, 50%)" },
-  { name: "High", value: 18, color: "hsl(0, 72%, 51%)" },
-  { name: "Critical", value: 5, color: "hsl(0, 84%, 40%)" },
-];
+interface AnalyticsChartsProps {
+  initialStats?: any;
+}
 
-const behaviorData = [
-  { pattern: "Transit", count: 156 },
-  { pattern: "Loitering", count: 42 },
-  { pattern: "Surveillance", count: 28 },
-  { pattern: "Approach", count: 18 },
-  { pattern: "Evasive", count: 8 },
-];
-
-const AnalyticsCharts = () => {
-  const [stats, setStats] = useState<Stats | null>(null);
+const AnalyticsCharts = ({ initialStats }: AnalyticsChartsProps) => {
+  const [stats, setStats] = useState<any>(initialStats || null);
   const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [threatDistribution, setThreatDistribution] = useState<any[]>([]);
+  const [behaviorData, setBehaviorData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,22 +31,37 @@ const AnalyticsCharts = () => {
         const data = await getStats();
         setStats(data);
 
-        // Transform hourly_breakdown for chart
+        // Transform hourly_breakdown for chart (mock data to real structure)
         if (data.hourly_breakdown) {
-          const chartData = data.hourly_breakdown.map((val, idx) => ({
+          const chartData = data.hourly_breakdown.map((val: number, idx: number) => ({
             time: `${idx}:00`,
             detections: val,
             threats: Math.floor(val * 0.2) // Mock threat data based on detections
           }));
           setTimelineData(chartData);
         }
+
+        // Threat Distribution
+        setThreatDistribution([
+          { name: "Low", value: data.low_alerts || 0, color: "hsl(199, 89%, 48%)" },
+          { name: "Medium", value: data.medium_alerts || 0, color: "hsl(38, 92%, 50%)" },
+          { name: "High", value: data.high_alerts || 0, color: "hsl(0, 72%, 51%)" },
+        ]);
+
+        // Behavior Pattern (Mock for now or derive if backend provides)
+        setBehaviorData([
+          { pattern: "Speeding", count: data.speed_violations || 0 },
+          { pattern: "Hovering", count: data.hover_detections || 0 },
+          { pattern: "In Zone", count: data.zone_violations || 0 },
+        ]);
+
       } catch (error) {
         console.error("Failed to load stats", error);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000); // Poll every 5s
+    const interval = setInterval(fetchData, 2000); // Poll every 2s for "real-time" feel
     return () => clearInterval(interval);
   }, []);
 
@@ -98,13 +104,6 @@ const AnalyticsCharts = () => {
                 strokeWidth={1.5}
                 dot={{ fill: "hsl(199, 89%, 48%)", r: 3 }}
               />
-              <Line
-                type="monotone"
-                dataKey="threats"
-                stroke="hsl(0, 72%, 51%)"
-                strokeWidth={1.5}
-                dot={{ fill: "hsl(0, 72%, 51%)", r: 3 }}
-              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -115,7 +114,7 @@ const AnalyticsCharts = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-[2px] bg-destructive" />
-            <span className="text-xs text-foreground-muted">Threat Events</span>
+            <span className="text-xs text-foreground-muted">Total Alerts: {stats?.total_alerts || 0}</span>
           </div>
         </div>
       </div>
@@ -158,7 +157,7 @@ const AnalyticsCharts = () => {
                   style={{ background: item.color }}
                 />
                 <span className="text-xs text-foreground-muted">
-                  {item.name}: {item.value}%
+                  {item.name}: {item.value}
                 </span>
               </div>
             ))}

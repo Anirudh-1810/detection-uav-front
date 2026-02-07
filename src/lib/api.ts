@@ -36,6 +36,14 @@ export interface Stats {
     total_detections: number;
     current_occupancy: number;
     hourly_breakdown: number[];
+    total_alerts: number;
+    high_alerts: number;
+    medium_alerts: number;
+    low_alerts: number;
+    speed_violations: number;
+    hover_detections: number;
+    zone_violations: number;
+    recent_alerts: any[];
 }
 
 export async function getStats(): Promise<Stats> {

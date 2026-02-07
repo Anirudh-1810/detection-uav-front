@@ -214,26 +214,47 @@ async def analyze_video(file: UploadFile = File(...)):
     cap.release()
     out.release()
     
+    # Get analysis results
+    stats = video_processor.alert_manager.get_statistics()
+    alerts = video_processor.alert_manager.alerts
+    
     print("Video analysis complete.")
     
     return {
         "message": "Video analysis complete.",
         "job_id": str(int(time.time())), 
-        "output_video_path": output_filename 
+        "output_video_path": output_filename,
+        "stats": stats,
+        "alerts": alerts
     }
 
 @app.get("/stats")
 def get_stats():
-    # Return dummy stats for now, can be connected to real data later
-    total_detections = 0
-    if state.drone_system and state.drone_system.tracker:
-        total_detections = len(state.drone_system.tracker.tracks)
-        
-    return {
-        "total_detections": total_detections,
-        "current_occupancy": 0, # To be implemented
-        "hourly_breakdown": [5, 12, 18, 10]
+    # Return real stats from alert_manager
+    stats = {
+        "total_detections": 0,
+        "current_occupancy": 0,
+        "hourly_breakdown": [0] * 24, # Mock hourly for now, could be derived from alerts timestamps
+        "total_alerts": 0,
+        "high_alerts": 0,
+        "medium_alerts": 0,
+        "low_alerts": 0,
+        "recent_alerts": []
     }
+
+    if state.drone_system:
+        # Get tracker stats
+        if state.drone_system.tracker:
+            stats["total_detections"] = len(state.drone_system.tracker.tracks)
+        
+        # Get alert stats
+        if state.drone_system.alert_manager:
+            alert_stats = state.drone_system.alert_manager.get_statistics()
+            stats.update(alert_stats)
+            # Get recent alerts for feed
+            stats["recent_alerts"] = state.drone_system.alert_manager.alerts[-10:] if state.drone_system.alert_manager.alerts else []
+
+    return stats
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
