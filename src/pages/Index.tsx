@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HeroSection from "@/components/landing/HeroSection";
-import VideoIntelligenceSection from "@/components/landing/VideoIntelligenceSection";
+import VideoIntelligenceSection from "@/components/landing/VideoIntelligenceSection"; // RESTORED IMPORT
 import CTASection from "@/components/landing/CTASection";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardOverview from "@/components/dashboard/DashboardOverview";
 import DashboardVideo from "@/components/dashboard/DashboardVideo";
-import DashboardAlerts from "@/components/dashboard/DashboardAlerts";
 import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics";
-import DashboardHistory from "@/components/dashboard/DashboardHistory";
 import DashboardSettings from "@/components/dashboard/DashboardSettings";
 
 const Index = () => {
@@ -23,12 +21,8 @@ const Index = () => {
     switch (activeSection) {
       case "video":
         return <DashboardVideo />;
-      case "alerts":
-        return <DashboardAlerts />;
       case "analytics":
         return <DashboardAnalytics />;
-      case "history":
-        return <DashboardHistory />;
       case "settings":
         return <DashboardSettings />;
       default:
@@ -48,7 +42,7 @@ const Index = () => {
           className="bg-background"
         >
           <HeroSection />
-          <VideoIntelligenceSection />
+          <VideoIntelligenceSection /> {/* RESTORED SECTION */}
           <CTASection onStart={handleStart} />
         </motion.div>
       ) : (
