@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { 
-  LayoutDashboard, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutDashboard,
+  BarChart3,
+  Settings,
   Menu,
   X,
   Shield
@@ -18,6 +18,7 @@ interface DashboardLayoutProps {
 
 const sidebarItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "detector", label: "UAV Detector", icon: Shield },
   // "Live Feed" removed
   { id: "analytics", label: "Analytics & Reports", icon: BarChart3 },
   { id: "settings", label: "System", icon: Settings },
@@ -54,15 +55,13 @@ const DashboardLayout = ({ children, activeSection, onSectionChange }: Dashboard
                 <button
                   key={item.id}
                   onClick={() => onSectionChange(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 group ${
-                    activeSection === item.id
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 group ${activeSection === item.id
                       ? "bg-primary/10 border border-primary/20 text-primary"
                       : "text-foreground-muted hover:bg-background-elevated hover:text-foreground"
-                  }`}
+                    }`}
                 >
-                  <item.icon className={`w-4 h-4 ${
-                    activeSection === item.id ? "text-primary" : "text-foreground-subtle group-hover:text-foreground"
-                  }`} />
+                  <item.icon className={`w-4 h-4 ${activeSection === item.id ? "text-primary" : "text-foreground-subtle group-hover:text-foreground"
+                    }`} />
                   <span className="text-sm font-medium tracking-wide">{item.label}</span>
                 </button>
               ))}

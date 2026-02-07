@@ -8,6 +8,7 @@ import DashboardOverview from "@/components/dashboard/DashboardOverview";
 import DashboardVideo from "@/components/dashboard/DashboardVideo";
 import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics";
 import DashboardSettings from "@/components/dashboard/DashboardSettings";
+import { Detector } from "@/components/Detector";
 
 const Index = () => {
   const [view, setView] = useState<"landing" | "dashboard">("landing");
@@ -19,6 +20,8 @@ const Index = () => {
 
   const renderDashboardContent = () => {
     switch (activeSection) {
+      case "detector":
+        return <Detector />;
       case "video":
         return <DashboardVideo />;
       case "analytics":
@@ -52,7 +55,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <DashboardLayout 
+          <DashboardLayout
             activeSection={activeSection}
             onSectionChange={setActiveSection}
           >
