@@ -50,7 +50,8 @@ async def lifespan(app: FastAPI):
     print("Initializing AI Models...")
     try:
         # Load the requested best.pt model via DroneDetectorTracker
-        model_path = "best.pt"
+        # SWITCHING TO YOLOv8s TEMPORARILY AS best.pt IS NOT DETECTING
+        model_path = "yolov8s.pt" 
         print(f"Loading model: {model_path}")
         # Initialize DroneDetectorTracker
         # Note: restricted_zones can be passed if needed later
@@ -136,10 +137,40 @@ try:
     db_name = MONGO_URI.split("/")[-1].split("?")[0] or "uav_detection"
     db = mongo_client[db_name]
     analysis_collection = db["analysis_logs"]
+    json_collection = db["json_uploads"] # Collection for JSON uploads
     print(f"Connected to MongoDB: {db_name}")
 except Exception as e:
     print(f"Warning: MongoDB connection failed: {e}. Stats will not be saved.")
     mongo_client = None
+
+@app.post("/upload-json")
+async def upload_json(file: UploadFile = File(...)):
+    if json_collection is None:
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    try:
+        content = await file.read()
+        json_data = json.loads(content.decode("utf-8"))
+        
+        # Add metadata
+        document = {
+            "filename": file.filename,
+            "upload_timestamp": datetime.utcnow(),
+            "data": json_data
+        }
+        
+        result = json_collection.insert_one(document)
+        
+        return {
+            "message": "JSON uploaded successfully",
+            "id": str(result.inserted_id),
+            "filename": file.filename
+        }
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON file")
+    except Exception as e:
+        print(f"Error uploading JSON: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 SYSTEM_PROMPT = """You are an expert RF signal analyst specializing in unmanned aerial vehicle (UAV) detection and threat assessment.
 

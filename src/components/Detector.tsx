@@ -5,6 +5,7 @@ import { analyzeVideo } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import AnalyticsCharts from "./dashboard/AnalyticsCharts";
+import { JsonUploadPanel } from "./JsonUploadPanel";
 
 export const Detector = () => {
     const { toast } = useToast();
@@ -263,6 +264,9 @@ export const Detector = () => {
                     )}
                 </div>
             </div>
+
+            {/* Separate JSON Upload Panel */}
+            <JsonUploadPanel />
         </div>
     );
 };

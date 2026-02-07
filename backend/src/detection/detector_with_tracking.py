@@ -44,7 +44,11 @@ class DroneDetectorTracker:
                     alerts.append(alert)
         
         # Annotate frame
-        annotated_frame = self._annotate_frame(frame.copy(), tracks, alerts, detections)
+        try:
+            annotated_frame = self._annotate_frame(frame.copy(), tracks, alerts, detections)
+        except Exception as e:
+            print(f"Error annotating frame {self.frame_count}: {e}")
+            annotated_frame = frame
         
         return tracks, annotated_frame, alerts
     
