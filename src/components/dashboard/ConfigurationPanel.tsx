@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { updateZones } from "@/lib/api";
 
 const ConfigurationPanel = () => {
   const [sensitivity, setSensitivity] = useState([75]);
@@ -12,13 +13,56 @@ const ConfigurationPanel = () => {
     medium: false,
     low: false,
   });
+  const [zoneInput, setZoneInput] = useState("");
+
+  const handleSaveZones = async () => {
+    try {
+      // Parse manual input: "x,y; x,y; x,y"
+      const points = zoneInput.split(';').map(p => {
+        const [x, y] = p.split(',').map(s => parseInt(s.trim()));
+        return [x, y];
+      });
+
+      if (points.some(p => isNaN(p[0]) || isNaN(p[1]))) {
+        alert("Invalid format! Use: x,y; x,y; x,y");
+        return;
+      }
+
+      await updateZones([points]); // Send as list of polygons
+      alert("Zones updated successfully!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update zones");
+    }
+  };
 
   return (
     <div className="space-y-6">
+      {/* Zone Configuration */}
+      <div className="bg-background-elevated border border-border-subtle p-6">
+        <p className="text-system-label mb-6">RESTRICTED ZONES</p>
+        <div className="space-y-4">
+          <label className="text-sm text-foreground">Define Restricted Zone (Polygon)</label>
+          <p className="text-xs text-foreground-subtle">Enter coordinates as x,y paired by semicolons (e.g. 100,100; 300,100; 300,300; 100,300). This roughly maps to the video frame pixels.</p>
+          <Input
+            value={zoneInput}
+            onChange={(e) => setZoneInput(e.target.value)}
+            placeholder="100,100; 300,100; 300,300; 100,300"
+            className="bg-background-surface border-border-subtle text-foreground font-mono"
+          />
+          <button
+            onClick={handleSaveZones}
+            className="px-4 py-2 bg-secondary text-secondary-foreground text-xs hover:bg-secondary/80 transition-colors"
+          >
+            Update Zones
+          </button>
+        </div>
+      </div>
+
       {/* Detection Settings */}
       <div className="bg-background-elevated border border-border-subtle p-6">
         <p className="text-system-label mb-6">DETECTION SETTINGS</p>
-        
+
         <div className="space-y-6">
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -59,24 +103,24 @@ const ConfigurationPanel = () => {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="text-xs text-foreground-muted mb-1 block">Minimum</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   defaultValue={50}
                   className="bg-background-surface border-border-subtle text-foreground"
                 />
               </div>
               <div>
                 <label className="text-xs text-foreground-muted mb-1 block">Target</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   defaultValue={80}
                   className="bg-background-surface border-border-subtle text-foreground"
                 />
               </div>
               <div>
                 <label className="text-xs text-foreground-muted mb-1 block">Display</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   defaultValue={60}
                   className="bg-background-surface border-border-subtle text-foreground"
                 />
@@ -89,47 +133,47 @@ const ConfigurationPanel = () => {
       {/* Notification Settings */}
       <div className="bg-background-elevated border border-border-subtle p-6">
         <p className="text-system-label mb-6">NOTIFICATION SETTINGS</p>
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-foreground">Critical Alerts</p>
               <p className="text-xs text-foreground-subtle">Immediate notification for critical threats</p>
             </div>
-            <Switch 
+            <Switch
               checked={notifications.critical}
               onCheckedChange={(checked) => setNotifications({ ...notifications, critical: checked })}
             />
           </div>
-          
+
           <div className="border-t border-border-subtle pt-4 flex items-center justify-between">
             <div>
               <p className="text-sm text-foreground">High Priority</p>
               <p className="text-xs text-foreground-subtle">Notification for high-threat detections</p>
             </div>
-            <Switch 
+            <Switch
               checked={notifications.high}
               onCheckedChange={(checked) => setNotifications({ ...notifications, high: checked })}
             />
           </div>
-          
+
           <div className="border-t border-border-subtle pt-4 flex items-center justify-between">
             <div>
               <p className="text-sm text-foreground">Medium Priority</p>
               <p className="text-xs text-foreground-subtle">Notification for medium-threat detections</p>
             </div>
-            <Switch 
+            <Switch
               checked={notifications.medium}
               onCheckedChange={(checked) => setNotifications({ ...notifications, medium: checked })}
             />
           </div>
-          
+
           <div className="border-t border-border-subtle pt-4 flex items-center justify-between">
             <div>
               <p className="text-sm text-foreground">Low Priority</p>
               <p className="text-xs text-foreground-subtle">Notification for low-threat detections</p>
             </div>
-            <Switch 
+            <Switch
               checked={notifications.low}
               onCheckedChange={(checked) => setNotifications({ ...notifications, low: checked })}
             />
@@ -140,7 +184,7 @@ const ConfigurationPanel = () => {
       {/* System Configuration */}
       <div className="bg-background-elevated border border-border-subtle p-6">
         <p className="text-system-label mb-6">SYSTEM CONFIGURATION</p>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -165,16 +209,16 @@ const ConfigurationPanel = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-foreground-muted mb-1 block">Retention Period (days)</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   defaultValue={90}
                   className="bg-background-surface border-border-subtle text-foreground"
                 />
               </div>
               <div>
                 <label className="text-xs text-foreground-muted mb-1 block">Max Concurrent Streams</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   defaultValue={4}
                   className="bg-background-surface border-border-subtle text-foreground"
                 />
