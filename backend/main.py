@@ -6,7 +6,8 @@ import os
 import json
 import time
 import shutil
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File
+import re
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -320,7 +321,7 @@ async def analyze_video(file: UploadFile = File(...)):
     # Actually, simpler is just to create a new instance. Loading model is fast if cached by YOLO.
     
     # Create a dedicated processor for this video
-    video_processor = DroneDetectorTracker(model_path="best.pt")
+    video_processor = DroneDetectorTracker(model_path="yolov8s.pt")
     
     frame_count = 0
     while cap.isOpened():
@@ -403,7 +404,16 @@ async def analyze_json(request: AnalysisRequest):
             f"{request.prompt}\n\nData:\n{request.data}"
         )
 
-        return {
+        # Parse Risk Score
+        risk_score = 0.0
+        try:
+            match = re.search(r"Risk Score:\s*([0-9]*\.?[0-9]+)", response.text)
+            if match:
+                risk_score = float(match.group(1))
+        except Exception as e:
+            print(f"Error parsing risk score: {e}")
+
+        response_data = {
             "success": True,
             "status": 200,
             "model": os.getenv("LLM_MODEL", "gemini-2.0-flash"),
@@ -415,11 +425,28 @@ async def analyze_json(request: AnalysisRequest):
                     "rf_data": request.data
                 },
                 "output": {
-                    "analysis": response.text
+                    "analysis": response.text,
+                    "risk_score": risk_score
                 }
             },
             "error": None
         }
+
+        # Save to MongoDB
+        if analysis_collection is not None:
+            try:
+                # Flattens structure slightly for easier querying if needed, or keeps it nested
+                # Let's add top-level risk_score for easier querying
+                mongo_doc = response_data.copy()
+                mongo_doc["risk_score"] = risk_score
+                analysis_collection.insert_one(mongo_doc)
+                print(f"Saved analysis to MongoDB: {response_data['request_id']} (Risk: {risk_score})")
+            except Exception as e:
+                print(f"Error saving to MongoDB: {e}")
+
+        return response_data
+
+        return response_data
 
     except Exception as e:
         return {
@@ -430,6 +457,22 @@ async def analyze_json(request: AnalysisRequest):
                 "message": str(e)
             }
         }
+
+@app.get("/analysis-history")
+async def get_analysis_history(limit: int = 50):
+    if analysis_collection is None:
+        raise HTTPException(status_code=503, detail="MongoDB not connected")
+    
+    try:
+        # Fetch recent logs, sorted by timestamp descending
+        cursor = analysis_collection.find({}, {"_id": 0}).sort("timestamp", -1).limit(limit)
+        history = list(cursor)
+        return {
+            "count": len(history),
+            "history": history
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     if model is None:

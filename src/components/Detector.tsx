@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Play, Pause, RefreshCw, Activity, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { analyzeVideo } from "@/lib/api";
+import { analyzeVideo, API_BASE_URL } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import AnalyticsCharts from "./dashboard/AnalyticsCharts";
@@ -190,7 +190,7 @@ export const Detector = () => {
                                         {analysisResult ? (
                                             <video
                                                 ref={outputVideoRef}
-                                                src={`http://localhost:8000/videos/${encodeURIComponent(analysisResult.output_video_path)}`}
+                                                src={`${API_BASE_URL}/videos/${encodeURIComponent(analysisResult.output_video_path)}`}
                                                 className="w-full h-full object-contain opacity-90"
                                                 autoPlay
                                                 loop
