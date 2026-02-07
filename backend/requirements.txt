@@ -3,3 +3,5 @@ uvicorn
 ultralytics
 python-multipart
 pillow
+google-generativeai
+python-dotenv
