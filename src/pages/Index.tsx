@@ -1,36 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HeroSection from "@/components/landing/HeroSection";
-import VideoIntelligenceSection from "@/components/landing/VideoIntelligenceSection"; // RESTORED IMPORT
+import VideoIntelligenceSection from "@/components/landing/VideoIntelligenceSection";
 import CTASection from "@/components/landing/CTASection";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import DashboardOverview from "@/components/dashboard/DashboardOverview";
-import DashboardVideo from "@/components/dashboard/DashboardVideo";
-import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics";
-import DashboardSettings from "@/components/dashboard/DashboardSettings";
 import { Detector } from "@/components/Detector";
 
 const Index = () => {
   const [view, setView] = useState<"landing" | "dashboard">("landing");
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activeSection, setActiveSection] = useState("detector");
 
   const handleStart = () => {
     setView("dashboard");
-  };
-
-  const renderDashboardContent = () => {
-    switch (activeSection) {
-      case "detector":
-        return <Detector />;
-      case "video":
-        return <DashboardVideo />;
-      case "analytics":
-        return <DashboardAnalytics />;
-      case "settings":
-        return <DashboardSettings />;
-      default:
-        return <Detector />;
-    }
   };
 
   return (
@@ -45,7 +26,7 @@ const Index = () => {
           className="bg-background"
         >
           <HeroSection />
-          <VideoIntelligenceSection /> {/* RESTORED SECTION */}
+          <VideoIntelligenceSection />
           <CTASection onStart={handleStart} />
         </motion.div>
       ) : (
@@ -59,7 +40,8 @@ const Index = () => {
             activeSection={activeSection}
             onSectionChange={setActiveSection}
           >
-            {renderDashboardContent()}
+            {/* Always render Detector as other sections are deprecated */}
+            <Detector />
           </DashboardLayout>
         </motion.div>
       )}

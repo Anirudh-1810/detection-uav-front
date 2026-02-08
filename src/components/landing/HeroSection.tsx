@@ -23,11 +23,11 @@ const HeroSection = () => {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[200vh] bg-background"
+      className="relative min-h-[150vh] bg-background"
     >
       {/* Grid overlay */}
       <div className="absolute inset-0 grid-overlay opacity-30" />
-      
+
       {/* Sticky hero content */}
       <motion.div
         className="sticky top-0 h-screen flex flex-col items-center justify-center px-6"
@@ -37,8 +37,8 @@ const HeroSection = () => {
         <div className="absolute top-8 left-8 flex items-center gap-4">
           <RadarLogo />
           <div>
-            <p className="text-system-label">SENTINEL</p>
-            <p className="text-xs text-foreground-subtle">
+            <p className="text-system-label font-bold tracking-wider">SENTINEL</p>
+            <p className="text-xs text-foreground-subtle font-mono">
               Aerial Surveillance System
             </p>
           </div>
@@ -46,23 +46,23 @@ const HeroSection = () => {
 
         {/* Classification badge */}
         <div className="absolute top-8 right-8">
-          <div className="px-3 py-1.5 border border-border-subtle bg-background-surface">
-            <p className="text-system-label text-[10px]">CLASSIFIED // INTERNAL USE ONLY</p>
+          <div className="px-3 py-1.5 border border-primary/20 bg-primary/5">
+            <p className="text-system-label text-[10px] text-primary font-bold tracking-widest">CLASSIFIED // INTERNAL USE ONLY</p>
           </div>
         </div>
 
         {/* Main content */}
-        <div className="max-w-3xl text-center">
+        <div className="max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
-            <p className="text-system-label mb-4">THREAT DETECTION SYSTEM</p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-foreground tracking-tight mb-6">
+            <p className="text-system-label mb-6 text-primary tracking-[0.2em] font-bold">THREAT DETECTION SYSTEM</p>
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold text-foreground tracking-tighter mb-8 leading-none">
               Visual Intelligence for
               <br />
-              <span className="text-primary">Aerial Surveillance</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">Aerial Surveillance</span>
             </h1>
           </motion.div>
 
@@ -114,7 +114,7 @@ interface NarrativeLineProps {
 const NarrativeLine = ({ text, index, scrollProgress }: NarrativeLineProps) => {
   const start = 0.1 + index * 0.08;
   const end = start + 0.15;
-  
+
   const opacity = useTransform(scrollProgress, [start, end], [0, 1]);
   const y = useTransform(scrollProgress, [start, end], [20, 0]);
 

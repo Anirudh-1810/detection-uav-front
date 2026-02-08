@@ -10,7 +10,7 @@ const CTASection = ({ onStart }: CTASectionProps) => {
     <section className="h-screen flex flex-col items-center justify-center bg-background relative">
       {/* Subtle grid */}
       <div className="absolute inset-0 grid-overlay opacity-20" />
-      
+
       <motion.div
         className="text-center relative z-10"
         initial={{ opacity: 0, y: 20 }}
@@ -18,11 +18,11 @@ const CTASection = ({ onStart }: CTASectionProps) => {
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <p className="text-system-label mb-4">OPERATIONAL ACCESS</p>
-        <h2 className="text-3xl md:text-4xl font-light text-foreground mb-8">
+        <p className="text-system-label mb-6 text-primary font-bold tracking-widest">OPERATIONAL ACCESS</p>
+        <h2 className="text-5xl md:text-6xl font-extrabold text-foreground mb-10 tracking-tight">
           Enter the Operational Dashboard
         </h2>
-        
+
         <Button
           onClick={onStart}
           className="px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors border-0 text-sm tracking-wide uppercase font-medium"

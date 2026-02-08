@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { analyzeVideo, API_BASE_URL } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import AnalyticsCharts from "./dashboard/AnalyticsCharts";
+
 import { JsonUploadPanel } from "./JsonUploadPanel";
 
 export const Detector = () => {
@@ -78,8 +78,8 @@ export const Detector = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
-                <h2 className="text-2xl font-light text-foreground mb-1">UAV Detector</h2>
-                <p className="text-foreground-muted text-sm">Advanced real-time threat detection and tracking system</p>
+                <h2 className="text-2xl font-light text-foreground mb-1">UAV Sentinel</h2>
+                <p className="text-foreground-muted text-sm">Advanced RF Signal Analysis & Threat Detection</p>
             </div>
 
             <div className="rounded-lg border border-border-subtle bg-card overflow-hidden">
@@ -196,6 +196,7 @@ export const Detector = () => {
                                                 loop
                                                 muted
                                                 playsInline
+                                                onTimeUpdate={syncVideos}
                                             />
                                         ) : (
                                             // Placeholder while analyzing
@@ -251,15 +252,7 @@ export const Detector = () => {
                                 </div>
                             </div>
 
-                            {/* Analysis Results / Stats */}
-                            <div className="pt-6 border-t border-border-subtle">
-                                <h3 className="text-lg font-light text-foreground mb-4 flex items-center gap-2">
-                                    <Activity className="w-5 h-5 text-primary" />
-                                    Live Mission Analytics
-                                </h3>
-                                {/* Pass initialStats from analysis result if checking a specific video */}
-                                <AnalyticsCharts initialStats={analysisResult?.stats} />
-                            </div>
+
                         </div>
                     )}
                 </div>

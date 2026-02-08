@@ -44,13 +44,13 @@ const VideoIntelligenceSection = () => {
     offset: ["start start", "end end"],
   });
 
-  const box1Opacity = useTransform(scrollYProgress, [0.1, 0.25], [0, 1]);
-  const box2Opacity = useTransform(scrollYProgress, [0.2, 0.35], [0, 1]);
-  const box3Opacity = useTransform(scrollYProgress, [0.3, 0.45], [0, 1]);
-  const overlayOpacity = useTransform(scrollYProgress, [0.4, 0.55], [0, 1]);
+  const box1Opacity = useTransform(scrollYProgress, [0.05, 0.2], [0, 1]);
+  const box2Opacity = useTransform(scrollYProgress, [0.15, 0.3], [0, 1]);
+  const box3Opacity = useTransform(scrollYProgress, [0.25, 0.4], [0, 1]);
+  const overlayOpacity = useTransform(scrollYProgress, [0.35, 0.5], [0, 1]);
 
   return (
-    <section ref={containerRef} className="relative" style={{ height: "250vh" }}>
+    <section ref={containerRef} className="relative" style={{ height: "180vh" }}>
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center px-8 py-12">
         {/* Section label */}
         <div className="mb-6">
