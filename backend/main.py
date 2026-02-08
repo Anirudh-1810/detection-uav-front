@@ -123,6 +123,7 @@ genai_model = None
 # --- MongoDB Setup ---
 import pymongo
 from pymongo.errors import ConnectionFailure
+import certifi
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/uav_detection")
 mongo_client = None
@@ -131,7 +132,13 @@ analysis_collection = None
 
 try:
     # Connect to MongoDB (Atlas or Local)
-    mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    # FORCED SSL BYPASS: Creating a custom SSL context to ignore all verification
+    import ssl
+    try:
+        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000, tls=True, tlsAllowInvalidCertificates=True, tlsAllowInvalidHostnames=True)
+    except:
+        # Fallback for older pymongo versions or specific SSL envs
+        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     # Trigger a server check
     mongo_client.admin.command('ping')
     
@@ -443,8 +450,6 @@ async def analyze_json(request: AnalysisRequest):
                 print(f"Saved analysis to MongoDB: {response_data['request_id']} (Risk: {risk_score})")
             except Exception as e:
                 print(f"Error saving to MongoDB: {e}")
-
-        return response_data
 
         return response_data
 

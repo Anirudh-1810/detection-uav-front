@@ -190,7 +190,7 @@ export const Detector = () => {
                                         {analysisResult ? (
                                             <video
                                                 ref={outputVideoRef}
-                                                src={`${API_BASE_URL}/videos/${encodeURIComponent(analysisResult.output_video_path)}`}
+                                                src={`${API_BASE_URL}/videos/${encodeURIComponent(analysisResult.output_video_path)}?t=${Date.now()}`}
                                                 className="w-full h-full object-contain opacity-90"
                                                 autoPlay
                                                 loop
