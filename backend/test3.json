@@ -1,0 +1,18 @@
+{
+  "prompt": "Analyze the RF signal and assess threat level.",
+  "data": {
+    "frequency_band": "5.8 GHz",
+    "channel_bandwidth_mhz": 80,
+    "signal_strength_dbm": -22,
+    "protocol": "unknown",
+    "modulation": "custom",
+    "signal_stability": "erratic",
+    "frequency_hopping": true,
+    "hopping_rate_hz": 25,
+    "encryption_detected": true,
+    "flight_duration_sec": 900,
+    "movement_pattern": "hovering + sharp turns",
+    "location_context": "near restricted military zone",
+    "time_of_day": "night"
+  }
+}

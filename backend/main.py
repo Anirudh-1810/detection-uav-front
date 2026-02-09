@@ -396,8 +396,7 @@ def get_stats():
 
     return stats
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
 class AnalysisRequest(BaseModel):
     data: Dict[str, Any]
     prompt: str = "Analyze the following RF signal data based on the provided framework."
@@ -505,3 +504,6 @@ async def predict(file: UploadFile = File(...)):
     except Exception as e:
         print(f"Error processing image: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
